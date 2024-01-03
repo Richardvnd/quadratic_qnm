@@ -10,13 +10,9 @@ computes the 'spatial mismatch'.
 """
 
 import numpy as np
-import pickle
-import json
-import matplotlib.pyplot as plt
 import qnmfitsrd as qnmfits
 import spherical
 import quaternionic
-
 
 
 def mode_mapping(theta, phi, best_fit, mapping, l_max):

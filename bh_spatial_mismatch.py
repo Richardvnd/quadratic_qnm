@@ -11,12 +11,10 @@ appear to be reconstructed as well by the spatial reconstruction code.
 
 import numpy as np
 import matplotlib.pyplot as plt
-import qnmfitsrd as qnmfits
+import qnmfitsrd as qnmfits 
 from multiprocessing import Pool
 from spatial_reconstruction import *
-from development.qnm_visualisation import qnm_viz
 from matplotlib.animation import FuncAnimation
-import datetime 
 
 l_max = 4
 n_max = 4
