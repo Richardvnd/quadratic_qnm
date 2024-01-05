@@ -15,6 +15,7 @@ import spherical
 import quaternionic
 
 
+
 def mode_mapping(theta, phi, best_fit, mapping, l_max):
     wigner = spherical.Wigner(l_max)
     R = quaternionic.array.from_spherical_coordinates(theta, phi)
