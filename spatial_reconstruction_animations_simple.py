@@ -15,9 +15,9 @@ from spatial_reconstruction import *
 from matplotlib.animation import FuncAnimation
 import datetime 
 
-id = 208
+id = 1442
 
-sim = qnmfits.SXS(ID=id, zero_time=(2,2))
+sim = qnmfits.SXS(ID=id, zero_time=(2,2), transform = 'rotation')
 
 l_max = 3
 n_max = 3
