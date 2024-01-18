@@ -16,10 +16,8 @@ from qnm_vis import *
 
 qnm_vis = qnm_vis() 
 
-spherical_modes = [(2,0)]
-
 id = datetime.datetime.now()
 sim = qnmfits.SXS(ID=305, zero_time=(2,2))
-ani  = qnm_vis.animate_spherical_modes(sim.times, sim.h, spherical_modes=spherical_modes, 
-                                tstart = -100, tstop = 100, tstep = 10, projection='mollweide')
-ani.save(f'spherical_{id}.mp4', writer='ffmpeg')
+ani  = qnm_vis.animate_spherical_modes(sim.times, sim.h, 
+                                tstart = -1800, tstop = 500, tstep = 5, projection='mollweide')
+ani.save(f'lm_{id}.mp4', writer='ffmpeg')

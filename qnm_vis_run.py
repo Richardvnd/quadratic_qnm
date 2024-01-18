@@ -16,9 +16,9 @@ from qnm_vis import *
 
 qnm_vis = qnm_vis() 
 
-modes = [(3,2,0,1), (3,3,0,1), (3,1,0,1), (3,0,0,1)]
+modes = [(2,2,0,1)] 
 
 id = datetime.datetime.now()
 sim = qnmfits.SXS(ID=305, zero_time=(2,2))
-ani  = qnm_vis.animate_qnms(sim, modes=modes, tstart=0, tend=20)
-ani.save(f'spherical_{id}.mp4', writer='ffmpeg')
+ani  = qnm_vis.animate_qnms(sim, modes=modes, tstart=-100, tstop=100)
+ani.save(f'qnm_{id}.mp4', writer='ffmpeg')

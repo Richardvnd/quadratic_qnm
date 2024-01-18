@@ -12,6 +12,8 @@ from matplotlib.animation import FuncAnimation
 import quaternionic
 import spherical
 import qnmfitsrd as qnmfits
+from tqdm import tqdm 
+from Spatial_reconstruction.spatial_reconstruction import *
 
 class qnm_vis:
     def __init__(self, l_max=9, precomp_sYlm = True):
@@ -43,14 +45,11 @@ class qnm_vis:
         return Y
 
 
-    def plot_spherical_modes(self, ax, times, data_dict, theta, phi, t0=0, spherical_modes=None):
-        if spherical_modes is None:
-            spherical_modes = list(data_dict.keys())
+    def plot_spherical_modes(self, ax, times, data_dict, theta, phi, spherical_modes, t0=0):
 
         t0 = min(times, key=lambda x: abs(x - t0))
         data_mask = (times == t0) 
 
-        map = np.zeros_like(self.theta, dtype=complex)
         map = sum(data_dict[lm][data_mask] * self.sYlm[lm[0], lm[1]] for lm in spherical_modes)
         map /= np.max(np.abs(map))
 
@@ -64,7 +63,10 @@ class qnm_vis:
     
 
     def animate_spherical_modes(self, times, data_dict, spherical_modes=None, 
-                                tstart = 10000, tstop = 11000, tstep = 50, projection='mollweide'): 
+                                tstart = -100, tstop = 100, tstep = 50, projection='mollweide'): 
+        
+        if spherical_modes is None:
+            spherical_modes = list(data_dict.keys())
 
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,8))
         ax[0].axis('off')  
@@ -74,16 +76,21 @@ class qnm_vis:
 
         theta, phi = self.theta, self.phi
 
+        pbar = tqdm(total=len(range(tstart, tstop, tstep)))
+
         def update(step):
-            self.plot_spherical_modes(ax, times, data_dict, theta, phi, step, spherical_modes)
+            self.plot_spherical_modes(ax, times, data_dict, theta, phi, spherical_modes, step)
+            pbar.update(1)
+            if step == tstop - tstep:
+                pbar.close()
             return ax 
 
-        ani = FuncAnimation(fig, update, frames=range(tstart, tstop, tstep), interval=50)
+        ani = FuncAnimation(fig, update, frames=range(tstart, tstop, tstep), interval=100)
 
         return ani
     
 
-    def animate_qnms(self, sim, tstart=-100, tend=200, modes=[(2,2,0,1)], tstep = 1, projection='mollweide'):
+    def animate_qnms(self, sim, tstart=-100, tstop=200, modes=[(2,2,0,1)], tstep = 1, projection='mollweide'):
 
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,8))
         ax[0].axis('off')  
@@ -95,6 +102,8 @@ class qnm_vis:
 
         spherical_modes = sim.h.keys()
 
+        pbar = tqdm(total=len(range(tstart, tstop, tstep)))
+
         def update(step):
             best_fit = qnmfits.multimode_ringdown_fit(sim.times, 
                                             sim.h, 
@@ -105,7 +114,6 @@ class qnm_vis:
             
             # TODO: Check this is correct. How do you obtain the QNM mode reconstruction from the best fit?
 
-            map = np.zeros_like(self.theta, dtype=complex)
             map = sum(sum(best_fit['weighted_C'][lm]) * self.sYlm[lm[0], lm[1]] for lm in spherical_modes)
             map /= np.max(np.abs(map))
 
@@ -114,10 +122,126 @@ class qnm_vis:
 
             ax[1].title.set_text('Imaginary')
             ax[1].pcolormesh(theta, phi, np.imag(map), cmap=plt.cm.viridis)
+
+            pbar.update(1)
+            if step == tstop - tstep:
+                pbar.close()
             
             return ax 
 
-        ani = FuncAnimation(fig, update, frames=range(tstart, tend, tstep), interval=50)
+        ani = FuncAnimation(fig, update, frames=range(tstart, tstop, tstep), interval=50)
 
         return ani
 
+
+    def animate_mapping_qnm_lm(self, sim, tstart=-100, tstop=200, tstep = 1, 
+                               mapping_QNMs=[(2,2,0,1)], mapping=[(2,2,0,1)], l_max=9,
+                               data_spherical_modes=None, mapping_spherical_modes=None, 
+                               model_modes=None, projection='mollweide', t0=0):
+
+        fig, ax = plt.subplots(nrows=3, ncols=2, figsize=(12,8))
+        ax[0,0].axis('off')  
+        ax[0,1].axis('off')  
+        ax[1,0].axis('off')  
+        ax[1,1].axis('off')  
+        ax[2,0].axis('off')  
+        ax[2,1].axis('off')  
+        ax[0,0] = plt.subplot(3, 2, 1, projection=projection)
+        ax[0,1] = plt.subplot(3, 2, 2, projection=projection)
+        ax[1,0] = plt.subplot(3, 2, 3, projection=projection)
+        ax[1,1] = plt.subplot(3, 2, 4, projection=projection)
+        ax[2,0] = plt.subplot(3, 2, 5, projection=projection)
+        ax[2,1] = plt.subplot(3, 2, 6, projection=projection)
+
+        theta, phi = self.theta, self.phi
+
+        if data_spherical_modes is None:
+            data_spherical_modes = sim.h.keys()
+        
+        if mapping_spherical_modes is None:
+            mapping_spherical_modes = [(l,m) for l in np.arange(2, l_max+1)
+                                                            for m in np.arange(-l,l+1)]
+            
+        model_modes_label = model_modes 
+        if model_modes is None:
+            model_modes = [(lam,mu,n,p) for lam in np.arange(2, l_max+1)
+                        for mu in np.arange(-lam, lam+1)
+                           for n in np.arange(0, 3+1)
+                              for p in (-1, +1)]
+            model_modes_label = 'All'
+
+        times = sim.times
+        data_dict = sim.h
+
+        pbar = tqdm(total=len(range(tstart, tstop, tstep)))
+
+        def update(step):
+
+            # Determine the complete GW spatial pattern (sum over all lm spherical modes)
+
+            t0 = min(times, key=lambda x: abs(x - step))
+            data_mask = (times == t0) 
+
+            gw_map = sum(data_dict[lm][data_mask] * self.sYlm[lm[0], lm[1]] for lm in data_spherical_modes)
+            gw_map /= np.max(np.abs(gw_map))
+
+            # Determine the best fit QNM spatial pattern (sum over all lmnp QNM modes)
+
+            best_fit = qnmfits.multimode_ringdown_fit(times, 
+                                            data_dict, 
+                                            modes=model_modes,
+                                            Mf=sim.Mf,
+                                            chif=sim.chif_mag,
+                                            t0=step)
+            
+            # TODO: Check this is correct. How do you obtain the QNM mode reconstruction from the best fit?
+
+            qnm_map = sum(sum(best_fit['weighted_C'][lm]) * self.sYlm[lm[0], lm[1]] for lm in data_spherical_modes)
+            qnm_map /= np.max(np.abs(qnm_map))
+
+            # Determine the best fit mapping of QNM modes
+
+            best_fit = qnmfits.mapping_multimode_ringdown_fit(times, 
+                                            data_dict, 
+                                            modes=mapping_QNMs,
+                                            Mf=sim.Mf,
+                                            chif=sim.chif_mag,
+                                            t0=step,
+                                            mapping_modes=mapping,
+                                            spherical_modes=mapping_spherical_modes)
+
+            F = mode_mapping(np.pi/2-phi, theta, best_fit, mapping[0], l_max)
+
+            fig.suptitle(f"QNM Model: {model_modes_label}, Mapping Modes: {mapping}"
+                         f"\n $t_0$ = {step}", fontsize=16) 
+            
+            ax[0,0].set_title('Real', fontsize=12, fontweight='bold')
+            ax[0,1].set_title('Imag', fontsize=12, fontweight='bold')
+
+            ax[0,0].title.set_text('GW data')
+            ax[0,0].pcolormesh(theta, phi, np.real(gw_map), cmap=plt.cm.viridis)
+
+            ax[0,1].title.set_text('GW data')
+            ax[0,1].pcolormesh(theta, phi, np.imag(gw_map), cmap=plt.cm.viridis)
+
+            ax[1,0].title.set_text('QNM Model')
+            ax[1,0].pcolormesh(theta, phi, np.real(qnm_map), cmap=plt.cm.viridis)
+
+            ax[1,1].title.set_text('QNM Model')
+            ax[1,1].pcolormesh(theta, phi, np.imag(qnm_map), cmap=plt.cm.viridis)
+
+            ax[2,0].title.set_text('QNM mapping')
+            ax[2,0].pcolormesh(theta, phi, np.real(F), cmap=plt.cm.viridis)
+
+            ax[2,1].title.set_text('QNM mapping')
+            ax[2,1].pcolormesh(theta, phi, np.imag(F), cmap=plt.cm.viridis)
+
+            pbar.update(1)
+            if step == tstop - tstep:
+                pbar.close()
+            
+            return ax 
+
+        ani = FuncAnimation(fig, update, frames=range(tstart, tstop, tstep), interval=100)
+
+        return ani
