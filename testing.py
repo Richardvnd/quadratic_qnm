@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import qnmfitsrd as qnmfits
 from multiprocessing import Pool
 from matplotlib.animation import FuncAnimation
-from qnm_vis import *
+from Visualisation.qnm_vis import *
 
 qnm_vis = qnm_vis() 
 
