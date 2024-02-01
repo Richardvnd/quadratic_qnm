@@ -50,7 +50,11 @@ class qnm_vis:
         t0 = min(times, key=lambda x: abs(x - t0))
         data_mask = (times == t0) 
 
-        map = sum(data_dict[lm][data_mask] * self.sYlm[lm[0], lm[1]] for lm in spherical_modes)
+        breakpoint() 
+
+        map = 0 
+        for lm in spherical_modes:
+            map += data_dict[lm][data_mask] * self.sYlm[lm[0], lm[1]]
         map /= np.max(np.abs(map))
 
         ax[0].title.set_text('Real')

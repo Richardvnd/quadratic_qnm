@@ -19,7 +19,7 @@ qnm_vis = qnm_vis()
 id = datetime.datetime.now()
 sim = qnmfits.SXS(ID=305, zero_time=(2,2))
 ani  = qnm_vis.animate_spherical_modes(sim.times, sim.h, 
-                                tstart = -10, tstop = 10, tstep = 1, 
-                                spherical_modes = [(2,2),(2,-2)], 
+                                tstart = -20, tstop = 20, tstep = 1, 
+                                spherical_modes = [(2,2), (2,-2)], 
                                 projection='mollweide')
 ani.save(f'lm_{id}.mp4', writer='ffmpeg')
