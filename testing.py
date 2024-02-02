@@ -12,21 +12,4 @@ import datetime
 l_max = 5
 n_max = 5
 
-sim = CCE_to_sim_simplified(sim_num='0305')
-#sim = qnmfits.SXS(ID=305, zero_time=(2,2))
-
-quadratic_mode = [(2,2,0,1,2,2,0,1)]
-
-l_modes = [(lam,mu,n,p) for lam in np.arange(2, l_max+1)
-                        for mu in np.arange(-lam, lam+1)
-                           for n in np.arange(0, n_max+1)
-                              for p in (-1, +1)]
-
-lq_modes = l_modes + quadratic_mode
-
-best_fit = qnmfits.multimode_ringdown_fit(sim.times, 
-                                 sim.h, 
-                                 modes=lq_modes,
-                                 Mf=sim.Mf,
-                                 chif=sim.chif_mag,
-                                 t0=0)
+sim_1503 = qnmfits.SXS(ID=1503, zero_time=(2,2))
