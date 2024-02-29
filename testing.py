@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import qnmfitsrd as qnmfits
 from multiprocessing import Pool
-from spatial_reconstruction_tests.spatial_reconstruction import *
+from spatial_reconstruction import *
 from matplotlib.animation import FuncAnimation
 from scipy.interpolate import UnivariateSpline
 from Visualisation.qnm_vis import * 

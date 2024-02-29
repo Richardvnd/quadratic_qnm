@@ -13,7 +13,7 @@ import quaternionic
 import spherical
 import qnmfitsrd as qnmfits
 from tqdm import tqdm 
-from spatial_reconstruction_tests.spatial_reconstruction import *
+from spatial_reconstruction import *
 
 class qnm_vis:
     def __init__(self, l_max=9, precomp_sYlm = True):
