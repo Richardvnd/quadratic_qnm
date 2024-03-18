@@ -21,20 +21,20 @@ sim = qnmfits.SXS(ID=id, zero_time='norm')
 
 l_max = 4
 n_max = 1
-t_start = -50
-t_end = 200
+t_start = -30
+t_end = 150
 t_step = 1
 t0 = {0:40., 1:18.5, 2:12., 3:8., 4:5.5, 5:3., 6:1.5, 7:0.}[n_max]
 time_id = datetime.datetime.now()
 
-mapping = [(2,2,0,1,2,-2,0,-1)]
+mapping = [(2,0,0,1)]
 
 spherical_modes = [(l,0) for l in range(2,l_max+1)] 
 
 QNMs = [(lam,mu,n,p) for lam in np.arange(2, l_max+1)
                         for mu in np.arange(-lam, lam+1)
                            for n in np.arange(0, n_max+1)
-                              for p in (-1, +1)] + mapping
+                              for p in (-1, +1)]
 
 fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(12,10))
 
