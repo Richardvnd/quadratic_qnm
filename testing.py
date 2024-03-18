@@ -9,7 +9,12 @@ from Visualisation.qnm_vis import *
 from qnmfitsrd.CCE_file_getter import *
 import datetime
 
-l_max = 5
-n_max = 5
+sim = CCE_to_sim_simplified(sim_num='0001')
+simhr = CCE_to_sim_high_res(sim_num='0001')
 
-sim_1503 = qnmfits.SXS(ID=1503, zero_time=(2,2))
+plt.plot(sim.times, sim.h[2,2].real)
+plt.plot(simhr.times, simhr.h[2,2].real, 'r')
+
+plt.xlim(0, 50)
+
+plt.show()
