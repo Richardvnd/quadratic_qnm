@@ -27,7 +27,7 @@ t_step = 1
 t0 = {0:40., 1:18.5, 2:12., 3:8., 4:5.5, 5:3., 6:1.5, 7:0.}[n_max]
 time_id = datetime.datetime.now()
 
-mapping = [(2,0,0,1)]
+mapping = [(2,2,0,1)]
 
 spherical_modes = [(l,0) for l in range(2,l_max+1)] 
 
